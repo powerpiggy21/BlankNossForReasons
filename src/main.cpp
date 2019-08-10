@@ -14,6 +14,8 @@ LCD lcd;
 
 bool throttleReadyToFire = false;
 
+unsigned long loopcounter = 0;
+
 int rpm = 6000;
 int bottleTemp = 80;
 int throttlePos = 100;
@@ -259,9 +261,7 @@ void statScreen(){
 
 
 }
-void statsValues() {
-  lcd.print(6,20,String(rpm));
-}
+
 
 void setup(){
   delay(1); //change to 5000 for production
@@ -289,6 +289,7 @@ void setup(){
   pinMode(heatPin, OUTPUT);
   pinMode(bottlePin, OUTPUT);
   pinMode(nosRelayPin, OUTPUT);
+  pinMode(13, OUTPUT);
 
   bottleControlSolonoidOff();
   bottleHeaterOff();
@@ -304,7 +305,6 @@ void loop(){
  for (int i = 0; i <= 255; i++) {
    rpm = i;
    statScreen();
-   getData();
    nosControl();
    purgeControl();
 }
@@ -314,5 +314,11 @@ void loop(){
    testFunction();
    //delay(5000);
    Serial.println("----------------------END--------------------");
-  }
+ }else{
+   getData(); //stop getting data when we go into debug
+ }
+ loopcounter++;
+ if (loopcounter==1000){
+   digitalWrite(13, 1);
+ }
 }
