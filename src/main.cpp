@@ -206,18 +206,18 @@ if (testMode){
 }
 
 void statScreen(){
-  if (testMode){
+  if (testMode){ //let us know if we are debuging
     lcd.print(0,0," DEBUG NOS Control OP OFF");
   }else{
     lcd.print(0,9,"NOS  Control");
   }
   lcd.print(1,0,"NOS Status:");
   if (armPin == LOW){
-
- if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) && (rpm < 7500) && (bottlePin == HIGH)) {
-   lcd.print(1,20,"READY");
- }else if(nosRelayPin == 1){lcd.print(1,20,"**FIRING**");
-}else {lcd.print(1,20,"NOT READY");}
+    if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) && (rpm < 7500) && (bottlePin == HIGH)) {
+   lcd.print(1,0,"NOS Status:             READY");
+ }else if(nosRelayPin == 1){
+   lcd.print(1,0,"NOS Status:        **FIRING**");
+}else {lcd.print(1,0,"NOS Status:          NOT READY");}
 
   lcd.print(2,0,"Bottle Temp:");
 
@@ -253,6 +253,8 @@ void statScreen(){
   lcd.print(7,0,"|  ***!!Test Mode On!!***    |");
   lcd.print(8,0,"|     OUTPUTS   DISABLED     |");
   lcd.print(9,0,"^----------------------------^");
+  delay(1000);
+  lcd.clear();
 }
 
 
@@ -266,10 +268,6 @@ void setup(){
   Serial.println("Starting test mode...");
   lcd.init();
   welcomeScreen();
-  //add self check stuff here
-  // we'll use the debug LED as output
-  pinMode(13, OUTPUT);
-  // start communication with OBD-II UART adapter
   #ifdef DEBUG
   #else
     obd.begin(); //Wait for ODB Coms
