@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <OBD2UART.h>
 #include <GLCD.h>
+#define DEBUG 1
 
 COBD obd;
 LCD lcd;
@@ -40,19 +41,19 @@ void getData(){
 }
 
 void nosOn(){
-  if (testMode){
+  #ifdef DEBUG
       Serial.println("NOS On");
-  }else{
+  #else
     digitalWrite(nosRelayPin, 1);
-  }
+  #endif
   //Fun neopixle stuff
 }
 void nosOff(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("NOS Off");
-  }else{
+  #else
     digitalWrite(nosRelayPin, 0);
-  }
+  #endif
     //shut off neopixle
 }
 
@@ -98,64 +99,64 @@ void purgeControl(){
 }
 
 void purgeValveOn(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("Purging");
-  }else{
+  #else
     digitalWrite(purgeRelayPin, HIGH);
-  }
+  #endif
 }
 void purgeValveOff(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("Purge Off");
-  }else{
+  #else
     digitalWrite(purgeRelayPin, LOW);
-  }
+  #endif
 }
 
 void bottleHeaterOn(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("Heater On");
-  }else{
+  #else
     digitalWrite(heatPin, HIGH);
-  }
+  #endif
 }
 void bottleHeaterOff(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("Heater Off");
-  }else{
+  #else
     digitalWrite(heatPin, LOW);
-  }
+  #endif
 }
 
 void bottleControlSolonoidOn(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("Bottle Control Solonoid On");
-  }else{
+  #else
     digitalWrite(bottlePin, HIGH);
-  }
+  #endif
 }
 void bottleControlSolonoidOff(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("Bottle Control Solonoid Off");
-  }else{
+  #else
     digitalWrite(bottlePin, LOW);
-  }
+  #endif
 }
 
 void thermostatRelayOff(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("thermostat Relay Off");
-  }else{
+  #else
     digitalWrite(thermostatRelayPin, LOW);
-  }
+  #endif
 }
 
 void thermostatRelayOn(){
-  if (testMode){
+  #ifdef DEBUG
     Serial.println("thermostat Relay On");
-  }else{
+  #else
     digitalWrite(thermostatRelayPin, HIGH);
-  }
+  #endif
 }
 
 void testFunction(){
@@ -291,19 +292,16 @@ void setup(){
 }
 
 void loop(){
-  for (int i = 0; i <= 255; i++) {
-    rpm = i;
-    statScreen();
-}
- if (!testMode){
-   getData();
- }else{
+ if (testMode){//this is here so we can go into debugmode in production
    Serial.println("-----------------START-------------------");
  }
- nosControl();
 
+ getData();
+ statScreen();
+ nosControl();
  purgeControl();
-  if (testMode){
+
+ if (testMode){
    testFunction();
    //delay(5000);
    Serial.println("----------------------END--------------------");
