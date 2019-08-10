@@ -8,6 +8,7 @@ COBD obd;
 LCD lcd;
 
 bool testMode = true;
+bool throttleReadyToFire = false;
 
 int rpm = 6000;
 int bottleTemp = 80;
