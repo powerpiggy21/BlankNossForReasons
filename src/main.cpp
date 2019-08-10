@@ -3,12 +3,15 @@
 #include <Arduino.h>
 #include <OBD2UART.h>
 #include <GLCD.h>
+//for hardcoded debug stuff
 #define DEBUG 1
+
+//for softcoded print funcutions and to disable outputs
+bool testMode = true;
 
 COBD obd;
 LCD lcd;
 
-bool testMode = true;
 bool throttleReadyToFire = false;
 
 int rpm = 6000;
@@ -270,8 +273,11 @@ void setup(){
   // we'll use the debug LED as output
   pinMode(13, OUTPUT);
   // start communication with OBD-II UART adapter
-//  obd.begin(); //Wait for ODB Coms
-//  while (!obd.init());
+  #ifdef DEBUG
+  #else
+    obd.begin(); //Wait for ODB Coms
+    while (!obd.init());
+  #endif
 
   pinMode(fireButtonPin, INPUT);
   pinMode(autoPin, INPUT);
@@ -295,11 +301,14 @@ void loop(){
  if (testMode){//this is here so we can go into debugmode in production
    Serial.println("-----------------START-------------------");
  }
+ for (int i = 0; i <= 255; i++) {
+   rpm = i;
+   statScreen();
+   getData();
+   nosControl();
+   purgeControl();
+}
 
- getData();
- statScreen();
- nosControl();
- purgeControl();
 
  if (testMode){
    testFunction();
