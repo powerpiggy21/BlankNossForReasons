@@ -321,4 +321,5 @@ void loop(){
  if (loopcounter==1000){
    digitalWrite(13, 1);
  }
+ digitalWrite(13,(!digitalRead(13)));
 }
