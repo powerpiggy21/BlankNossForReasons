@@ -206,45 +206,42 @@ if (testMode){
 }
 
 void statScreen(){
-  if (armPin == LOW){
-  lcd.print(0,9,"NOS  Control");
-
+  if (testMode){
+    lcd.print(0,9," DEBUG NOS Control OP OFF");
+  }else{
+    lcd.print(0,9,"NOS  Control");
+  }
   lcd.print(1,0,"NOS Status:");
+  if (armPin == LOW){
 
-//  if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) && (rpm < 7500) && (bottlePin == HIGH)) {
-  //  lcd.print(1,20,"READY");
-//  }else if(nosRelayPin == 1){lcd.print(1,20,"**FIRING**");
-//}else {lcd.print(1,20,"NOT READY");}
+ if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) && (rpm < 7500) && (bottlePin == HIGH)) {
+   lcd.print(1,20,"READY");
+ }else if(nosRelayPin == 1){lcd.print(1,20,"**FIRING**");
+}else {lcd.print(1,20,"NOT READY");}
 
   lcd.print(2,0,"Bottle Temp:");
 
   lcd.print(3,0,"Throttle Position:");
 
   lcd.print(4,0,"Auto NOS:");
-  //if (autoPin == HIGH) {
-  //  lcd.print(4,20,"Disabled");
-//  } else {
-//    lcd.print(4,20,"Enabled");
-//  }
+  if (autoPin == HIGH) {
+   lcd.print(4,20,"Disabled");
+ } else {
+   lcd.print(4,20,"Enabled");
+ }
 
   lcd.print(5,0,"Purge Status:");
-//  if (purgeRelayPin == HIGH) {
-  //  lcd.print(5,20,"PURGING");
-  //}
+ if (purgeRelayPin == HIGH) {
+   lcd.print(5,20,"PURGING");
+  }
 
   lcd.print(6,0,"RPM:                   " + (String(rpm)));
   // lcd.print(6,20,String(rpm));
    // print value
-
-
-
   lcd.print(7,0,"Coolant Temp:");
-
-
-
   lcd.print(8,7,"**SYSTEM ARMED**");
   lcd.print(9,7,"****************");
-}else{//place holder for dope ass stat screen
+}else{
   lcd.clear();
   lcd.print(0,0,"v----------------------------v");
   lcd.print(1,0,"|       NOS CONTROL          |");
