@@ -19,7 +19,7 @@ void LCD::clear(){
 
 void LCD::print(int row, int col, String data){
 	int length = data.length();
-	int modRow = row * 13; //13 as thats the length of the chars
+	int modRow = row * 14; //13 as thats the length of the chars
 	int modCol = col;
 	//delay(20);
 	Serial1.write(sta);
