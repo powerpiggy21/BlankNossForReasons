@@ -1,12 +1,12 @@
 
-//By Trevor Gruszynski
+// By Trevor Gruszynski
 #include <Arduino.h>
 #include <OBD2UART.h>
 #include <GLCD.h>
-//for hardcoded debug stuff
+// for hardcoded debug stuff
 #define DEBUG 1
 
-//for softcoded print funcutions and to disable outputs
+// for softcoded print funcutions and to disable outputs
 bool testMode = true;
 
 COBD obd;
@@ -20,7 +20,7 @@ int rpm = 6000;
 int bottleTemp = 80;
 int throttlePos = 100;
 int afr = 11;
-int coolantTemp; //Not nessassary
+int coolantTemp; // Not nessassary
 const int fireButtonPin = 1;
 const int nosRelayPin = 2;
 const int autoPin = 3;
@@ -31,248 +31,259 @@ const int heatPin = 7;
 const int bottlePin = 8;
 const int thermostatRelayPin = 9;
 
-//TODO
+// TODO
 // PurgeControl logic
 // Bottle Heat logic
 // Pedal Switch in sereis with NOS RElAY
 // Screen Error
 
-void getData(){
+void getData() {
   obd.readPID(PID_RPM, rpm);
   obd.readPID(PID_THROTTLE, throttlePos);
   obd.readPID(PID_AIR_FUEL_EQUIV_RATIO, afr);
   obd.readPID(PID_COOLANT_TEMP, coolantTemp);
-
 }
 
-void nosOn(){
-  #ifdef DEBUG
-      Serial.println("NOS On");
-  #else
-    digitalWrite(nosRelayPin, 1);
-  #endif
-  //Fun neopixle stuff
+void nosOn() {
+#ifdef DEBUG
+  Serial.println("NOS On");
+#else
+  digitalWrite(nosRelayPin, 1);
+#endif
+  // Fun neopixle stuff
 }
-void nosOff(){
-  #ifdef DEBUG
-    Serial.println("NOS Off");
-  #else
-    digitalWrite(nosRelayPin, 0);
-  #endif
-    //shut off neopixle
-}
-
-void nosControl(){
-    if (throttlePos > 98){throttleReadyToFire=true;}
-
-
-    if ((fireButtonPin == HIGH) && (armPin == HIGH) && (4000 < rpm) && (rpm<7500) && (throttleReadyToFire)) {
-      digitalWrite(thermostatRelayPin, HIGH);
-    }
-
-    if ((rpm > 3000) && (armPin == HIGH)) {
-      digitalWrite(bottlePin, HIGH);
-    } else {
-      digitalWrite(bottlePin, LOW);
-    }
-
-    if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin == HIGH) && (4000 < rpm) && (rpm < 6000) && (autoPin == HIGH)) {
-      nosOn();
-    } else if ((coolantTemp < -100) && (afr < 12) && (throttleReadyToFire) && (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) && (rpm < 7500)){
-      nosOn();
-    } else {
-      nosOff();
-    }
-
-    if ((armPin == HIGH) && (purgeButtonPin == HIGH)) {
-      digitalWrite(purgeRelayPin, HIGH);
-    } else {
-      digitalWrite(purgeRelayPin, LOW);
-    }
-
-    if ((bottleTemp > 90) && (armPin == HIGH)) {
-        digitalWrite(purgeRelayPin, HIGH);
-    }
-
-    if ((bottleTemp < 80) && (armPin == HIGH)) {
-      digitalWrite(heatPin, HIGH);
-    }
+void nosOff() {
+#ifdef DEBUG
+  Serial.println("NOS Off");
+#else
+  digitalWrite(nosRelayPin, 0);
+#endif
+  // shut off neopixle
 }
 
-void purgeControl(){
-  //place holder for autoperge and manual purge logic
-}
+void nosControl() {
+  if (throttlePos > 98) {
+    throttleReadyToFire = true;
+  }
 
-void purgeValveOn(){
-  #ifdef DEBUG
-    Serial.println("Purging");
-  #else
-    digitalWrite(purgeRelayPin, HIGH);
-  #endif
-}
-void purgeValveOff(){
-  #ifdef DEBUG
-    Serial.println("Purge Off");
-  #else
-    digitalWrite(purgeRelayPin, LOW);
-  #endif
-}
-
-void bottleHeaterOn(){
-  #ifdef DEBUG
-    Serial.println("Heater On");
-  #else
-    digitalWrite(heatPin, HIGH);
-  #endif
-}
-void bottleHeaterOff(){
-  #ifdef DEBUG
-    Serial.println("Heater Off");
-  #else
-    digitalWrite(heatPin, LOW);
-  #endif
-}
-
-void bottleControlSolonoidOn(){
-  #ifdef DEBUG
-    Serial.println("Bottle Control Solonoid On");
-  #else
-    digitalWrite(bottlePin, HIGH);
-  #endif
-}
-void bottleControlSolonoidOff(){
-  #ifdef DEBUG
-    Serial.println("Bottle Control Solonoid Off");
-  #else
-    digitalWrite(bottlePin, LOW);
-  #endif
-}
-
-void thermostatRelayOff(){
-  #ifdef DEBUG
-    Serial.println("thermostat Relay Off");
-  #else
-    digitalWrite(thermostatRelayPin, LOW);
-  #endif
-}
-
-void thermostatRelayOn(){
-  #ifdef DEBUG
-    Serial.println("thermostat Relay On");
-  #else
+  if ((fireButtonPin == HIGH) && (armPin == HIGH) && (4000 < rpm) &&
+      (rpm < 7500) && (throttleReadyToFire)) {
     digitalWrite(thermostatRelayPin, HIGH);
-  #endif
+  }
+
+  if ((rpm > 3000) && (armPin == HIGH)) {
+    digitalWrite(bottlePin, HIGH);
+  } else {
+    digitalWrite(bottlePin, LOW);
+  }
+
+  if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) &&
+      (armPin == HIGH) && (4000 < rpm) && (rpm < 6000) && (autoPin == HIGH)) {
+    nosOn();
+  } else if ((coolantTemp < -100) && (afr < 12) && (throttleReadyToFire) &&
+             (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) &&
+             (rpm < 7500)) {
+    nosOn();
+  } else {
+    nosOff();
+  }
+
+  if ((armPin == HIGH) && (purgeButtonPin == HIGH)) {
+    digitalWrite(purgeRelayPin, HIGH);
+  } else {
+    digitalWrite(purgeRelayPin, LOW);
+  }
+
+  if ((bottleTemp > 90) && (armPin == HIGH)) {
+    digitalWrite(purgeRelayPin, HIGH);
+  }
+
+  if ((bottleTemp < 80) && (armPin == HIGH)) {
+    digitalWrite(heatPin, HIGH);
+  }
 }
 
-void testFunction(){
-  Serial.print("armPin...");         Serial.println(digitalRead(armPin));
-  Serial.print("fireButtonPin...");      Serial.println(digitalRead(fireButtonPin));
-  Serial.print("nosRelayPin...");         Serial.println(digitalRead(nosRelayPin));
-  Serial.print("autoPin...");        Serial.println(digitalRead(autoPin));
-  Serial.print("heatPin...");        Serial.println(digitalRead(heatPin));
-  Serial.print("purgeRelayPin...");       Serial.println(digitalRead(purgeRelayPin));
-  Serial.print("purgeButtonPin..."); Serial.println(digitalRead(purgeButtonPin));
-  Serial.print("bottlePin...");      Serial.println(digitalRead(bottlePin));
+void purgeControl() {
+  // place holder for autoperge and manual purge logic
 }
 
-void welcomeScreen(){
+void purgeValveOn() {
+#ifdef DEBUG
+  Serial.println("Purging");
+#else
+  digitalWrite(purgeRelayPin, HIGH);
+#endif
+}
+void purgeValveOff() {
+#ifdef DEBUG
+  Serial.println("Purge Off");
+#else
+  digitalWrite(purgeRelayPin, LOW);
+#endif
+}
+
+void bottleHeaterOn() {
+#ifdef DEBUG
+  Serial.println("Heater On");
+#else
+  digitalWrite(heatPin, HIGH);
+#endif
+}
+void bottleHeaterOff() {
+#ifdef DEBUG
+  Serial.println("Heater Off");
+#else
+  digitalWrite(heatPin, LOW);
+#endif
+}
+
+void bottleControlSolonoidOn() {
+#ifdef DEBUG
+  Serial.println("Bottle Control Solonoid On");
+#else
+  digitalWrite(bottlePin, HIGH);
+#endif
+}
+void bottleControlSolonoidOff() {
+#ifdef DEBUG
+  Serial.println("Bottle Control Solonoid Off");
+#else
+  digitalWrite(bottlePin, LOW);
+#endif
+}
+
+void thermostatRelayOff() {
+#ifdef DEBUG
+  Serial.println("thermostat Relay Off");
+#else
+  digitalWrite(thermostatRelayPin, LOW);
+#endif
+}
+
+void thermostatRelayOn() {
+#ifdef DEBUG
+  Serial.println("thermostat Relay On");
+#else
+  digitalWrite(thermostatRelayPin, HIGH);
+#endif
+}
+
+void testFunction() {
+  Serial.print("armPin...");
+  Serial.println(digitalRead(armPin));
+  Serial.print("fireButtonPin...");
+  Serial.println(digitalRead(fireButtonPin));
+  Serial.print("nosRelayPin...");
+  Serial.println(digitalRead(nosRelayPin));
+  Serial.print("autoPin...");
+  Serial.println(digitalRead(autoPin));
+  Serial.print("heatPin...");
+  Serial.println(digitalRead(heatPin));
+  Serial.print("purgeRelayPin...");
+  Serial.println(digitalRead(purgeRelayPin));
+  Serial.print("purgeButtonPin...");
+  Serial.println(digitalRead(purgeButtonPin));
+  Serial.print("bottlePin...");
+  Serial.println(digitalRead(bottlePin));
+}
+
+void welcomeScreen() {
   lcd.clear();
   delay(60);
-  lcd.print(0,0,"v----------------------------v");
+  lcd.print(0, 0, "v----------------------------v");
   delay(60);
-  lcd.print(1,0,"|       NOS CONTROL          |");
+  lcd.print(1, 0, "|       NOS CONTROL          |");
   delay(60);
-  lcd.print(2,0,"|      The Shed 2019         |");
+  lcd.print(2, 0, "|      The Shed 2019         |");
   delay(60);
-  lcd.print(3,0,"|                            |");
+  lcd.print(3, 0, "|                            |");
   delay(60);
-  lcd.print(4,0,"|                            |");
+  lcd.print(4, 0, "|                            |");
   delay(60);
-  lcd.print(5,0,"| Hartford Race Team         |");
+  lcd.print(5, 0, "| Hartford Race Team         |");
   delay(60);
-  lcd.print(6,0,"|      Test Build      V01   |");
+  lcd.print(6, 0, "|      Test Build      V01   |");
   delay(60);
-if (testMode){
-  lcd.print(7,0,"|  ***!!Test Mode On!!***    |");
-  delay(60);
-  lcd.print(8,0,"|     OUTPUTS   DISABLED     |");
-}else{
-  lcd.print(7,0,"|                            |");
-  delay(60);
-  lcd.print(8,0,"|                            |");
-}
-  lcd.print(9,0,"^----------------------------^");
+  if (testMode) {
+    lcd.print(7, 0, "|  ***!!Test Mode On!!***    |");
+    delay(60);
+    lcd.print(8, 0, "|     OUTPUTS   DISABLED     |");
+  } else {
+    lcd.print(7, 0, "|                            |");
+    delay(60);
+    lcd.print(8, 0, "|                            |");
+  }
+  lcd.print(9, 0, "^----------------------------^");
   delay(1000);
   lcd.clear();
 }
 
-void statScreen(){
-  if (testMode){ //let us know if we are debuging
-    lcd.print(0,0,"------DEBUG NOS CONTROL-------");
-  }else{
-    lcd.print(0,0,"---------NOS  Control---------");
+void statScreen() {
+  if (testMode) { // let us know if we are debuging
+    lcd.print(0, 0, "------DEBUG NOS CONTROL-------");
+  } else {
+    lcd.print(0, 0, "---------NOS  Control---------");
   }
 
+  if (armPin == LOW) {
+    if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) &&
+        (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) &&
+        (rpm < 7500) && (bottlePin == HIGH)) {
+      lcd.print(1, 0, "NOS Status:             READY");
+    } else if (nosRelayPin == 1) {
+      lcd.print(1, 0, "NOS Status:        **FIRING**");
+    } else {
+      lcd.print(1, 0, "NOS Status:          NOT READY");
+    }
 
-  if (armPin == LOW){
-    if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) && (rpm < 7500) && (bottlePin == HIGH)) {
-   lcd.print(1,0,"NOS Status:             READY");
- }else if(nosRelayPin == 1){
-   lcd.print(1,0,"NOS Status:        **FIRING**");
-}else {lcd.print(1,0,"NOS Status:          NOT READY");}
+    lcd.print(2, 0, "Bottle Temp:");
 
-  lcd.print(2,0,"Bottle Temp:");
+    lcd.print(3, 0, "Throttle Position:");
 
-  lcd.print(3,0,"Throttle Position:");
+    if (autoPin == HIGH) {
+      lcd.print(4, 0, "Auto NOS:             Enabled");
+    } else {
+      lcd.print(4, 0, "Auto NOS:            Disabled");
+    }
 
+    if (purgeRelayPin == HIGH) {
+      lcd.print(5, 0, "Purge Status:          PURGING");
+    } else {
+      lcd.print(5, 0, "Purge Status:           CLOSED");
+    }
 
-  if (autoPin == HIGH) {
-    lcd.print(4,0,"Auto NOS:             Enabled");
- } else {
-   lcd.print(4,0,"Auto NOS:            Disabled");
- }
-
-
-  if (purgeRelayPin == HIGH) {
-   lcd.print(5,0,"Purge Status:          PURGING");
- }else{
-   lcd.print(5,0,"Purge Status:           CLOSED");
- }
-
-  lcd.print(6,0,"RPM:                   " + (String(rpm)));
-  lcd.print(7,0,"Coolant Temp:");
-  lcd.print(8,7,"**SYSTEM ARMED**");
-  lcd.print(9,7,"****************");
+    lcd.print(6, 0, "RPM:                   " + (String(rpm)));
+    lcd.print(7, 0, "Coolant Temp:");
+    lcd.print(8, 7, "**SYSTEM ARMED**");
+    lcd.print(9, 7, "****************");
+  }
 }
-}
 
-
-void dash(){ //dash for system off
+void dash() { // dash for system off
   lcd.clear();
-  lcd.print(0,0,"v----------------------------v");
-  lcd.print(1,0,"|            DASH            |");
-  lcd.print(2,0,"|                            |");
-  lcd.print(3,0,"|                            |");
-  lcd.print(4,0,"|                            |");
-  lcd.print(5,0,"|                            |");
-  lcd.print(6,0,"|                            |");
-  lcd.print(7,0,"|                            |");
-  lcd.print(8,0,"|                            |");
-  lcd.print(9,0,"^----------------------------^");
-
+  lcd.print(0, 0, "v----------------------------v");
+  lcd.print(1, 0, "|            DASH            |");
+  lcd.print(2, 0, "|                            |");
+  lcd.print(3, 0, "|                            |");
+  lcd.print(4, 0, "|                            |");
+  lcd.print(5, 0, "|                            |");
+  lcd.print(6, 0, "|                            |");
+  lcd.print(7, 0, "|                            |");
+  lcd.print(8, 0, "|                            |");
+  lcd.print(9, 0, "^----------------------------^");
 }
 
-void setup(){
-  delay(1); //change to 5000 for production
+void setup() {
+  delay(1); // change to 5000 for production
   Serial.begin(9600);
   Serial.println("Starting test mode...");
   lcd.init();
   welcomeScreen();
-  #ifdef DEBUG
-  #else
-    obd.begin(); //Wait for ODB Coms
-    while (!obd.init());
-  #endif
+#ifdef DEBUG
+#else
+  obd.begin(); // Wait for ODB Coms
+  while (!obd.init());
+#endif
 
   pinMode(fireButtonPin, INPUT);
   pinMode(autoPin, INPUT);
@@ -293,28 +304,27 @@ void setup(){
   thermostatRelayOff();
 }
 
-void loop(){
- if (testMode){//this is here so we can go into debugmode in production
-   Serial.println("-----------------START-------------------");
- }
- for (int i = 0; i <= 255; i++) {
-   rpm = i;
-   statScreen();
-   nosControl();
-   purgeControl();
-}
+void loop() {
+  if (testMode) { // this is here so we can go into debugmode in production
+    Serial.println("-----------------START-------------------");
+  }
+  for (int i = 0; i <= 255; i++) {
+    rpm = i;
+    statScreen();
+    nosControl();
+    purgeControl();
+  }
 
-
- if (testMode){
-   testFunction();
-   //delay(5000);
-   Serial.println("----------------------END--------------------");
- }else{
-   getData(); //stop getting data when we go into debug
- }
- loopcounter++;
- if (loopcounter==1000){
-   digitalWrite(13, 1);
- }
- digitalWrite(13,(!digitalRead(13)));
+  if (testMode) {
+    testFunction();
+    // delay(5000);
+    Serial.println("----------------------END--------------------");
+  } else {
+    getData(); // stop getting data when we go into debug
+  }
+  loopcounter++;
+  if (loopcounter == 1000) {
+    digitalWrite(13, 1);
+  }
+  digitalWrite(13, (!digitalRead(13)));
 }
