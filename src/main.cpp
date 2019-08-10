@@ -207,7 +207,7 @@ if (testMode){
 
 void statScreen(){
   if (testMode){
-    lcd.print(0,9," DEBUG NOS Control OP OFF");
+    lcd.print(0,0," DEBUG NOS Control OP OFF");
   }else{
     lcd.print(0,9,"NOS  Control");
   }
