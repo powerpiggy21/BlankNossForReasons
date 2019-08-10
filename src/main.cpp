@@ -229,33 +229,32 @@ void statScreen() {
     if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) &&
         (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) &&
         (rpm < 7500) && (bottlePin == HIGH)) {
-      lcd.print(1, 0, "NOS Status:             READY");
+      lcd.print(1, 0, "NOS STATUS:             READY");
     } else if (nosRelayPin == 1) {
-      lcd.print(1, 0, "NOS Status:        **FIRING**");
+      lcd.print(1, 0, "NOS STATUS:        **FIRING**");
     } else {
-      lcd.print(1, 0, "NOS Status:          NOT READY");
+      lcd.print(1, 0, "NOS STATUS:          NOT READY");
     }
 
-    lcd.print(2, 0, "Bottle Temp:");
+    lcd.print(2, 0, "BOTTLE TEMP:");
 
-    lcd.print(3, 0, "Throttle Position:");
+    lcd.print(3, 0, "THROTTLE POSITION:");
 
     if (autoPin == HIGH) {
-      lcd.print(4, 0, "Auto NOS:             Enabled");
+      lcd.print(4, 0, "AUTO NOS:             ENABLED");
     } else {
-      lcd.print(4, 0, "Auto NOS:            Disabled");
+      lcd.print(4, 0, "AUTO NOS:            DISABLED");
     }
 
     if (purgeRelayPin == HIGH) {
-      lcd.print(5, 0, "Purge Status:          PURGING");
+      lcd.print(5, 0, "PURGE Status:          PURGING");
     } else {
-      lcd.print(5, 0, "Purge Status:           CLOSED");
+      lcd.print(5, 0, "PURGE Status:           CLOSED");
     }
 
     lcd.print(6, 0, "RPM:                   " + (String(rpm)));
-    lcd.print(7, 0, "Coolant Temp:");
+    lcd.print(7, 0, "COOLENT TEMP:");
     lcd.print(8, 7, "**SYSTEM ARMED**");
-    lcd.print(9, 7, "****************");
   }
 }
 
