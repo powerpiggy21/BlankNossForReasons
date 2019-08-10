@@ -202,16 +202,18 @@ if (testMode){
   lcd.print(8,0,"|                            |");
 }
   lcd.print(9,0,"^----------------------------^");
-  delay(3000);
+  delay(1000);
+  lcd.clear();
 }
 
 void statScreen(){
   if (testMode){ //let us know if we are debuging
-    lcd.print(0,0," DEBUG NOS Control OP OFF");
+    lcd.print(0,0,"------DEBUG NOS CONTROL-------");
   }else{
-    lcd.print(0,9,"NOS  Control");
+    lcd.print(0,0,"---------NOS  Control---------");
   }
-  lcd.print(1,0,"NOS Status:");
+
+
   if (armPin == LOW){
     if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) && (rpm < 7500) && (bottlePin == HIGH)) {
    lcd.print(1,0,"NOS Status:             READY");
@@ -223,44 +225,42 @@ void statScreen(){
 
   lcd.print(3,0,"Throttle Position:");
 
-  lcd.print(4,0,"Auto NOS:");
+
   if (autoPin == HIGH) {
-   lcd.print(4,20,"Disabled");
+    lcd.print(4,0,"Auto NOS:             Enabled");
  } else {
-   lcd.print(4,20,"Enabled");
+   lcd.print(4,0,"Auto NOS:            Disabled");
  }
 
-  lcd.print(5,0,"Purge Status:");
- if (purgeRelayPin == HIGH) {
-   lcd.print(5,20,"PURGING");
-  }
+
+  if (purgeRelayPin == HIGH) {
+   lcd.print(5,0,"Purge Status:          PURGING");
+ }else{
+   lcd.print(5,0,"Purge Status:           CLOSED");
+ }
 
   lcd.print(6,0,"RPM:                   " + (String(rpm)));
-  // lcd.print(6,20,String(rpm));
-   // print value
   lcd.print(7,0,"Coolant Temp:");
   lcd.print(8,7,"**SYSTEM ARMED**");
   lcd.print(9,7,"****************");
-}else{
+}
+}
+
+
+void dash(){ //dash for system off
   lcd.clear();
   lcd.print(0,0,"v----------------------------v");
-  lcd.print(1,0,"|       NOS CONTROL          |");
-  lcd.print(2,0,"|      The Shed 2019         |");
+  lcd.print(1,0,"|            DASH            |");
+  lcd.print(2,0,"|                            |");
   lcd.print(3,0,"|                            |");
   lcd.print(4,0,"|                            |");
-  lcd.print(5,0,"|          HRT               |");
-  lcd.print(6,0,"|      Test Build      V01   |");
-  lcd.print(7,0,"|  ***!!Test Mode On!!***    |");
-  lcd.print(8,0,"|     OUTPUTS   DISABLED     |");
+  lcd.print(5,0,"|                            |");
+  lcd.print(6,0,"|                            |");
+  lcd.print(7,0,"|                            |");
+  lcd.print(8,0,"|                            |");
   lcd.print(9,0,"^----------------------------^");
-  delay(1000);
-  lcd.clear();
-}
-
-
 
 }
-
 
 void setup(){
   delay(1); //change to 5000 for production
