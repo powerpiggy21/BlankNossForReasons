@@ -1,0 +1,82 @@
+#include <Arduino.h>
+#include <GLCD.h>
+
+LCD lcd;
+
+void setup() {
+  lcd.init();
+  lcd.clear();
+  lcd.print(0,0,"v----------------------------v");
+  lcd.print(1,0,"|       lcd display          |");
+  lcd.print(2,0,"|      The Shed 2018         |");
+  lcd.print(3,0,"|                            |");
+  lcd.print(4,0,"|                            |");
+  lcd.print(5,0,"|                            |");
+  lcd.print(6,0,"|                            |");
+  lcd.print(7,0,"|                            |");
+  lcd.print(8,0,"|                            |");
+  lcd.print(9,0,"^----------------------------^");
+  delay(1000);
+  lcd.clear();
+  lcd.print(0,4,"Value of analog port 0");
+}
+
+void loop() {
+    lcd.print(1,11,String(analogRead(0)));
+}
+
+
+
+if (armPin == HIGH){
+lcd.clear();
+lcd.print(0,9,"NOS  Control");
+
+lcd.print(1,0,"NOS Status:");
+if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin == HIGH) && (fireButtonPin == HIGH) && (4000 < rpm) && (rpm < 7500) && (bottlePin == HIGH)) {
+  lcd.print(1,20,"READY");
+}else if(nosRelayPin == 1){lcd.print(1,20,"**FIRING**");
+}else {lcd.print(1,20,"NOT READY");}
+
+lcd.print(2,0,"Bottle Temp:");
+
+lcd.print(3,0,"Throttle Position:");
+
+lcd.print(4,0,"Auto NOS:");
+if (autoPin == HIGH) {
+  lcd.print(4,20,"Disabled");
+} else {
+  lcd.print(4,20,"Enabled");
+}
+
+lcd.print(5,0,"Purge Status:");
+if (purgeRelayPin == HIGH) {
+  lcd.print(5,20,"PURGING");
+}
+
+lcd.print(6,0,"RPM:");
+lcd.print(6,20,String(rpm)); // print value
+
+
+
+lcd.print(7,0,"Coolant Temp:");
+
+lcd.print(8,0,"");
+
+lcd.print(9,9,"SYSTEM ARMED");
+}else{//place holder for dope ass stat screen
+lcd.clear();
+lcd.print(0,0,"v----------------------------v");
+lcd.print(1,0,"|       NOS CONTROL          |");
+lcd.print(2,0,"|      The Shed 2019         |");
+lcd.print(3,0,"|                            |");
+lcd.print(4,0,"|                            |");
+lcd.print(5,0,"|          HRT               |");
+lcd.print(6,0,"|      Test Build      V01   |");
+lcd.print(7,0,"|  ***!!Test Mode On!!***    |");
+lcd.print(8,0,"|     OUTPUTS   DISABLED     |");
+lcd.print(9,0,"^----------------------------^");
+}
+
+
+
+}

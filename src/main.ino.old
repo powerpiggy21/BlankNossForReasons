@@ -1,0 +1,80 @@
+#include <Arduino.h>
+#include <OBD2UART.h>
+
+COBD obd;
+
+int rpm;
+int bottleTemp;
+int throttlePos;
+int afr;
+int engineLoad;
+int coolantTemp;
+#define buttonPin = 1;
+#define nosPin = 2;
+#define autoPin = 3;
+#define armPin = 4;
+#define purgeButtonPin = 5;
+#define purgePin = 6;
+#define heatPin = 7;
+#define bottlePin = 8;
+
+
+
+
+void setup(){
+  obd.begin;
+  while (!obd.init());
+  pinMode(buttonPin, INPUT);
+  pinMode(nosPin, OUTPUT);
+  pinMode(autoPin, INPUT);
+  pinMode(armPin, INPUT);
+  pinMode(purgeButtonPin, INPUT);
+  pinMode(purgePin, OUTPUT);
+  pinMode(heatPin, OUTPUT);
+  pinMode(bottlePin, OUTPUT);
+
+  digitalWrite(buttonPin, LOW);
+  digitalWrite(nosPin, LOW);
+  digitalWrite(autoPin, LOW);
+  digitalWrite(armPin, LOW);
+  digitalWrite(purgeButtonPin, LOW);
+  digitalWrite(purgePin, LOW);
+  digitalWrite(heatPin, LOW);
+  digitalWrite(bottlePin, LOW);
+}
+
+void loop(){
+  obd.readPID(PID_RPM, rpm);
+  obd.readPID(PID_THROTTLE, throttlePos);
+  obd.readPID(PID_AIR_FUEL_EQUIV_RATIO, afr);
+  obd.readPID(PID_ABSOLUTE_ENGINE_LOAD, engineLoad);
+  obd.readPID(PID_COOLANT_TEMP, coolantTemp)
+
+    if ((rpm > 3000) && (armPin, HIGH)) {
+      digitalWrite(bottlePin, HIGH);
+    } else {
+      digitalWrite(bottlePin, LOW);
+    }
+
+    if ((engineLoad > 98) && (coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin, HIGH) && (buttonPin, HIGH) && (4000 < rpm < 6000) && (autoPin, HIGH)) {
+      digitalWrite(nosPin, HIGH);
+    } else if ((engineLoad > 98) && (coolantTemp < -100) && (afr < 12) && (throttlePos > 98) && (armPin, HIGH) && (buttonPin, HIGH) && (4000 < rpm < 7500)){
+      digitalWrite(nosPin, HIGH);
+    } else {
+      digitalWrite(nosPin, LOW);
+    }
+
+    if ((armPin, HIGH) && (purgeButtonPin, HIGH)) {
+      digitalWrite(purgePin, HIGH);
+    } else {
+      digitalWrite(purgePin, LOW);
+    }
+
+    if ((bottleTemp > 90) && (armPin, HIGH)) {
+        digitalWrite(purgePin, HIGH);
+    }
+
+    if ((bottleTemp < 80) && (armPin, HIGH)) {
+      digitalWrite(heatPin, HIGH);
+    }
+  }

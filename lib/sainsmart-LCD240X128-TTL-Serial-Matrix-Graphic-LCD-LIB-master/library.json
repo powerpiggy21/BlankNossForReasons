@@ -1,0 +1,20 @@
+
+{
+    "name": "sainsmart-240x128-TTL",
+    "keywords": "serial, display, glcd",
+    "description": "A lib to control the sainsmart TTL Lcd",
+    "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/hexmaster111/sainsmart-LCD240X128-TTL-Serial-Matrix-Graphic-LCD-LIB.git"
+  },
+    "authors":
+    {
+	"name": "Trevor Gruszynski",
+	"email": "trevorgruszynski@gmail.com",
+	"url": "https://github.com/hexmaster111",
+	"maintainer": true
+    },
+  "frameworks": "arduino",
+  "platforms": "*"
+}
