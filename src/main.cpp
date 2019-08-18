@@ -1,7 +1,8 @@
 
-// By Trevor Gruszynski
+// By Trevor Gruszynski && Evan Gruszynski
 #include <Arduino.h>
 #include <OBD2UART.h>
+//#include <Nextion.h>
 // for hardcoded debug stuff
 #define DEBUG 1
 
@@ -9,6 +10,7 @@
 bool testMode = true;
 
 COBD obd;
+
 
 
 int rpm = 6000;
@@ -107,8 +109,8 @@ void printToScreen() {
 }
 
 void setup() {
-  delay(1); // change to 5000 for production
   Serial.begin(9600);
+  Serial2.begin(9600);
   Serial.println("Starting test mode...");
 
 #ifdef DEBUG
