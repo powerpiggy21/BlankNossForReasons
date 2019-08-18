@@ -1,0 +1,104 @@
+#include <Arduino.h>
+#include <OBD2UART.h>
+#include <GLCD.h>
+// for hardcoded debug stuff
+#define DEBUG 1
+
+// for softcoded print funcutions and to disable outputs
+bool testMode = true;
+
+COBD obd;
+
+int rpm = 6000;
+int bottlePressure = 900;
+int throttlePos = 100;
+int afr = 11;
+int coolantTemp = 250;
+
+
+const int bottlePressureLowPin = 1;
+const int bottlePressureHighPin = 2
+const int armPin = 3;
+const int autoPin = 4;
+
+// TODO
+// Pedal Switch in sereis with NOS RElAY
+
+void getData(){
+  obd.readPID(PID_RPM, rpm);
+  obd.readPID(PID_THROTTLE, throttlePos);
+  obd.readPID(PID_AIR_FUEL_EQUIV_RATIO, afr);
+  obd.readPID(PID_COOLANT_TEMP, coolantTemp);
+}
+
+void getPress(){
+
+}
+
+void conditionCheck(){
+if (armPin == HIGH ) {
+
+  if ((rpmPin > 4000) && (rpm < 8000)) {
+    digitalWrite(rpmPin, HIGH);
+  } else {
+    digitalWrite(rpmPin, LOW);
+  }
+
+  if ((bottlePressure > 1050) && (bottlePressure < 800)) {
+    digitalWrite(bottlePressurePin, HIGH);
+  } else {
+    digitalWrite(bottlePressurePin, LOW);
+  }
+
+  if (throttlePos > 98) {
+    digitalWrite(throttlePosPin, HIGH);
+  } else {
+    digitalWrite(throttlePosPin, LOW);
+  }
+
+  if (afr < 12) {
+    digitalWrite(afrPin, HIGH);
+  } else {
+    digitalWrite(afrPin, LOW);
+  }
+
+  if (coolantTemp < -100) {
+    digitalWrite(coolantTempPin, HIGH);
+  } else {
+    digitalWrite(coolantTempPin, LOW);
+  }
+
+  if (armPin == HIGH) {
+    digitalWrite(armOutputPin, HIGH);
+  } else {
+    digitalWrite(armOutputPin, LOW);
+  }
+
+}
+
+}
+
+void setup() {
+  delay(1); // change to 5000 for production
+  Serial.begin(9600);
+  Serial.println("Starting test mode...");
+  lcd.init();
+  welcomeScreen();
+#ifdef DEBUG
+#else
+  obd.begin(); // Wait for ODB Coms
+  while (!obd.init());
+#endif
+
+  pinMode(armPin, INPUT);
+  pinMode(autoPin, INPUT);
+  pinMode(bottlePressureLowPintPin, INPUT);
+  pinMode(bottlePressureHighPintPin, INPUT);
+
+}
+
+void loop() {
+  statScreen();
+  getData();
+  conditionCheck();
+}
