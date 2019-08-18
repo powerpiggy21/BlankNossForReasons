@@ -2,7 +2,7 @@
 // By Trevor Gruszynski && Evan Gruszynski
 #include <Arduino.h>
 #include <OBD2UART.h>
-//#include <Nextion.h>
+#include <Nextion.h>
 // for hardcoded debug stuff
 #define DEBUG 1
 

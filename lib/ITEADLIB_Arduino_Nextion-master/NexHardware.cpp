@@ -1,11 +1,11 @@
 /**
  * @file NexHardware.cpp
  *
- * The implementation of base API for using Nextion. 
+ * The implementation of base API for using Nextion.
  *
  * @author  Wu Pengfei (email:<pengfei.wu@itead.cc>)
  * @date    2015/8/11
- * @copyright 
+ * @copyright
  * Copyright (C) 2014-2015 ITEAD Intelligent Systems Co., Ltd. \n
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
 #define NEX_RET_CMD_FINISHED            (0x01)
 #define NEX_RET_EVENT_LAUNCHED          (0x88)
 #define NEX_RET_EVENT_UPGRADED          (0x89)
-#define NEX_RET_EVENT_TOUCH_HEAD            (0x65)     
+#define NEX_RET_EVENT_TOUCH_HEAD            (0x65)
 #define NEX_RET_EVENT_POSITION_HEAD         (0x67)
 #define NEX_RET_EVENT_SLEEP_POSITION_HEAD   (0x68)
 #define NEX_RET_CURRENT_PAGE_ID_HEAD        (0x66)
@@ -33,12 +33,12 @@
 #define NEX_RET_INVALID_OPERATION       (0x1B)
 
 /*
- * Receive uint32_t data. 
- * 
- * @param number - save uint32_t data. 
- * @param timeout - set timeout time. 
+ * Receive uint32_t data.
  *
- * @retval true - success. 
+ * @param number - save uint32_t data.
+ * @param timeout - set timeout time.
+ *
+ * @retval true - success.
  * @retval false - failed.
  *
  */
@@ -51,7 +51,7 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
     {
         goto __return;
     }
-    
+
     nexSerial.setTimeout(timeout);
     if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
     {
@@ -70,7 +70,7 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
 
 __return:
 
-    if (ret) 
+    if (ret)
     {
         dbSerialPrint("recvRetNumber :");
         dbSerialPrintln(*number);
@@ -79,17 +79,17 @@ __return:
     {
         dbSerialPrintln("recvRetNumber err");
     }
-    
+
     return ret;
 }
 
 
 /*
- * Receive string data. 
- * 
- * @param buffer - save string data. 
- * @param len - string buffer length. 
- * @param timeout - set timeout time. 
+ * Receive string data.
+ *
+ * @param buffer - save string data.
+ * @param len - string buffer length.
+ * @param timeout - set timeout time.
  *
  * @return the length of string buffer.
  *
@@ -107,7 +107,7 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
     {
         goto __return;
     }
-    
+
     start = millis();
     while (millis() - start <= timeout)
     {
@@ -118,7 +118,7 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
             {
                 if (0xFF == c)
                 {
-                    cnt_0xff++;                    
+                    cnt_0xff++;
                     if (cnt_0xff >= 3)
                     {
                         break;
@@ -134,7 +134,7 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
                 str_start_flag = true;
             }
         }
-        
+
         if (cnt_0xff >= 3)
         {
             break;
@@ -144,7 +144,7 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
     ret = temp.length();
     ret = ret > len ? len : ret;
     strncpy(buffer, temp.c_str(), ret);
-    
+
 __return:
 
     dbSerialPrint("recvRetString[");
@@ -167,7 +167,7 @@ void sendCommand(const char* cmd)
     {
         nexSerial.read();
     }
-    
+
     nexSerial.print(cmd);
     nexSerial.write(0xFF);
     nexSerial.write(0xFF);
@@ -176,19 +176,19 @@ void sendCommand(const char* cmd)
 
 
 /*
- * Command is executed successfully. 
+ * Command is executed successfully.
  *
  * @param timeout - set timeout time.
  *
  * @retval true - success.
- * @retval false - failed. 
+ * @retval false - failed.
  *
  */
 bool recvRetCommandFinished(uint32_t timeout)
-{    
+{
     bool ret = false;
     uint8_t temp[4] = {0};
-    
+
     nexSerial.setTimeout(timeout);
     if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
     {
@@ -204,7 +204,7 @@ bool recvRetCommandFinished(uint32_t timeout)
         ret = true;
     }
 
-    if (ret) 
+    if (ret)
     {
         dbSerialPrintln("recvRetCommandFinished ok");
     }
@@ -212,7 +212,7 @@ bool recvRetCommandFinished(uint32_t timeout)
     {
         dbSerialPrintln("recvRetCommandFinished err");
     }
-    
+
     return ret;
 }
 
@@ -221,9 +221,9 @@ bool nexInit(void)
 {
     bool ret1 = false;
     bool ret2 = false;
-    
-    dbSerialBegin(9600);
-    nexSerial.begin(9600);
+
+    dbSerialBegin(250000);
+    nexSerial.begin(115200);
     sendCommand("");
     sendCommand("bkcmd=1");
     ret1 = recvRetCommandFinished();
@@ -235,33 +235,32 @@ bool nexInit(void)
 void nexLoop(NexTouch *nex_listen_list[])
 {
     static uint8_t __buffer[10];
-    
+
     uint16_t i;
-    uint8_t c;  
-    
+    uint8_t c;
+
     while (nexSerial.available() > 0)
-    {   
+    {
         delay(10);
         c = nexSerial.read();
-        
+
         if (NEX_RET_EVENT_TOUCH_HEAD == c)
         {
             if (nexSerial.available() >= 6)
             {
-                __buffer[0] = c;  
+                __buffer[0] = c;
                 for (i = 1; i < 7; i++)
                 {
                     __buffer[i] = nexSerial.read();
                 }
                 __buffer[i] = 0x00;
-                
+
                 if (0xFF == __buffer[4] && 0xFF == __buffer[5] && 0xFF == __buffer[6])
                 {
                     NexTouch::iterate(nex_listen_list, __buffer[1], __buffer[2], (int32_t)__buffer[3]);
                 }
-                
+
             }
         }
     }
 }
-
