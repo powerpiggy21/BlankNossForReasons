@@ -18,9 +18,11 @@ int bottleTemp = 80;
 int throttlePos;
 int afr = 11;
 int coolantTemp;
+int oilPressure;
 bool bottlePressureLow;
 bool bottlePressureHigh;
 bool fuelPressureOK;
+
 
 const int fireButtonPin = 13;
 const int nosRelayPin = 14;
@@ -35,7 +37,7 @@ const int bottlePressureHighPin = 34; // 1000 psig pressure switch
 const int bottlePressureLowPin = 5; // 800 psig pressure switch
 const int linePressurePin = 18; // 4 psig pressure switch
 const int fuelPressure = 19; //fuel pressure to trigger when we go below 40 psi
-
+const int oilPressurePin = 23; //
 // TODO
 // PurgeControl logic
 // Bottle Heat logic
@@ -46,6 +48,8 @@ void getData() {
   obd.readPID(PID_THROTTLE, throttlePos);
   obd.readPID(PID_AIR_FUEL_EQUIV_RATIO, afr);
   obd.readPID(PID_COOLANT_TEMP, coolantTemp);
+  oilPressure=analogRead(oilPressurePin); //add the math to make this psi
+
 
   if(digitalRead(bottlePressureHigh)){
     bottlePressureHigh=1;
@@ -146,6 +150,9 @@ nextonTerminatSequence();
     Serial2.print("1024");
   }
   nextonTerminatSequence();
+
+  Serial2.print("j1.val=");Serial2.print(map(afr,0,15,0,100));nextonTerminatSequence();
+  Serial2.print("n2.val=");Serial2.print(oilPressure);nextonTerminatSequence();
 }
 
 void testHMI(){
@@ -163,6 +170,13 @@ void testHMI(){
   coolantTemp++;
   if (coolantTemp==300){coolantTemp=0;}
 
+  afr++;
+  if(afr==15){afr=0;}
+
+  oilPressure++;
+  if(oilPressure==200){
+    oilPressure=0;
+  }
 
 }
 
@@ -188,6 +202,8 @@ if(!testMode){
   pinMode(bottlePressureLowPin, INPUT);
   pinMode(bottlePressureHighPin, INPUT);
   pinMode(linePressurePin, INPUT);
+  pinMode(fuelPressure, INPUT);
+  pinMode(oilPressurePin, INPUT);
 
   pinMode(thermostatRelayPin, OUTPUT);
   pinMode(purgeRelayPin, OUTPUT);
@@ -208,7 +224,7 @@ void loop() {
   if (armPin == HIGH) {
     nosControl();
     autoHeat();
-    }
+  }
   purge();
   autoPurge();
   putDataToHMI();
