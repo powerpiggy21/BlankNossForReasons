@@ -13,24 +13,28 @@ COBD obd;
 
 
 
-int rpm = 6000;
+int rpm;
 int bottleTemp = 80;
-int throttlePos = 100;
+int throttlePos;
 int afr = 11;
 int coolantTemp;
-const int fireButtonPin = 1;
-const int nosRelayPin = 2;
-const int autoPin = 3;
-const int armPin = 4;
-const int purgeButtonPin = 5;
-const int purgeRelayPin = 6;
-const int heatPin = 7; // bottle heater relay pin
-const int bottlePin = 8; // high pressure solonoid for bottle cut off
-const int thermostatRelayPin = 9; // sets car thermostate to -255 F
-const int bottlePressureHighPin = 10; // 1000 psig pressure switch
-const int bottlePressureLowPin = 11; // 800 psig pressure switch
-const int linePressurePin = 12; // 4 psig pressure switch
+bool bottlePressureLow;
+bool bottlePressureHigh;
+bool fuelPressureOK;
 
+const int fireButtonPin = 13;
+const int nosRelayPin = 14;
+const int autoPin = 12;
+const int armPin = 27;
+const int purgeButtonPin = 26;
+const int purgeRelayPin = 25;
+const int heatPin = 33; // bottle heater relay pin
+const int bottlePin = 32; // high pressure solonoid for bottle cut off
+const int thermostatRelayPin = 35; // sets car thermostate to -255 F
+const int bottlePressureHighPin = 34; // 1000 psig pressure switch
+const int bottlePressureLowPin = 5; // 800 psig pressure switch
+const int linePressurePin = 18; // 4 psig pressure switch
+const int fuelPressure = 19; //fuel pressure to trigger when we go below 40 psi
 
 // TODO
 // PurgeControl logic
@@ -42,22 +46,30 @@ void getData() {
   obd.readPID(PID_THROTTLE, throttlePos);
   obd.readPID(PID_AIR_FUEL_EQUIV_RATIO, afr);
   obd.readPID(PID_COOLANT_TEMP, coolantTemp);
+
+  if(digitalRead(bottlePressureHigh)){
+    bottlePressureHigh=1;
+  }else{
+    bottlePressureHigh=0;
+  }
+
+  if(digitalRead(bottlePressureLow)){
+    bottlePressureLow=1;
+  }else{
+    bottlePressureLow=0;
+  }
 }
 
-void nosControl() {
-
-
+void nosControl(){
   if ((fireButtonPin == HIGH) && (armPin == HIGH) && (4000 < rpm) &&
       (rpm < 7500) && (throttlePos > 98)) {
     digitalWrite(thermostatRelayPin, HIGH);
   }
-
   if (armPin == HIGH) {
     digitalWrite(bottlePin, HIGH);
   } else {
     digitalWrite(bottlePin, LOW);
   }
-
   if ((coolantTemp < -100) && (afr < 12) && (throttlePos > 98) &&
       (armPin == HIGH) && (4000 < rpm) && (rpm < 6000) && (autoPin == HIGH)) {
     digitalWrite(nosRelayPin, HIGH);
@@ -68,13 +80,11 @@ void nosControl() {
   } else {
     digitalWrite(nosRelayPin, LOW);
   }
-
   if ((armPin == HIGH) && (purgeButtonPin == HIGH)) {
     digitalWrite(purgeRelayPin, HIGH);
   } else {
     digitalWrite(purgeRelayPin, LOW);
   }
-
 }
 
 void autoPurge() {
@@ -104,20 +114,72 @@ void autoHeat() {
   }
 }
 
-void printToScreen() {
+void nextonTerminatSequence(){
+  Serial2.write(0xFF);
+  Serial2.write(0xFF);
+  Serial2.write(0xFF);
+}
+
+void putDataToHMI(){
+  //RPM
+  Serial2.print("n0.val="); Serial2.print(rpm); nextonTerminatSequence();
+  if (fuelPressureOK){Serial2.print("t103.txt=\"OK\"");}else{Serial2.print("t103.txt=\"LOW\"");}nextonTerminatSequence();
+
+  if (bottlePressureHigh){
+    Serial2.print("t100.txt=\"HIGH\"");
+  }else if(bottlePressureLow){
+    Serial2.print("t100.txt=\"LOW\"");
+  }else{
+    Serial2.print("t100.txt=\"OK\"");
+  }
+nextonTerminatSequence();
+
+  Serial2.print("n3.val=");Serial2.print(throttlePos);nextonTerminatSequence();
+
+  Serial2.print("j0.val=");Serial2.print(map(coolantTemp,0,300,0,100));nextonTerminatSequence();
+  Serial2.print("j0.pco=");
+  if(coolantTemp>=200){
+    Serial2.print("RED");
+  }else if((coolantTemp>=-100)&&(coolantTemp<=165)){
+    Serial2.print("BLUE");
+  }else{
+    Serial2.print("1024");
+  }
+  nextonTerminatSequence();
+}
+
+void testHMI(){
+  rpm++; //force rpm test
+  if (fuelPressureOK){ //forse fuelpressuretest
+    fuelPressureOK=false;
+
+  }else{
+    fuelPressureOK=true;
+
+  }
+  Serial2.print("t255.txt=\"Test mode\""); nextonTerminatSequence();
+  throttlePos++;
+  if (throttlePos==100){throttlePos=0;}
+  coolantTemp++;
+  if (coolantTemp==300){coolantTemp=0;}
+
 
 }
 
 void setup() {
-  Serial.begin(9600);
-  Serial2.begin(9600);
-  Serial.println("Starting test mode...");
+Serial.begin(115200);
+Serial.println("Starting test mode...");
 
-#ifdef DEBUG
-#else
-  obd.begin(); // Wait for ODB Coms
+Serial2.begin(9600);
+
+
+if(!testMode){
   while (!obd.init());
-#endif
+}
+
+  delay(2000);
+  Serial2.print("page 1");
+  nextonTerminatSequence();
 
   pinMode(fireButtonPin, INPUT);
   pinMode(autoPin, INPUT);
@@ -142,14 +204,12 @@ void setup() {
 }
 
 void loop() {
-getData();
-if (armPin == HIGH) {
-  nosControl();
-  autoHeat();
-  }
-printToScreen();
-purge();
-autoPurge();
-
-
+  if (testMode){testHMI();}else{getData();}
+  if (armPin == HIGH) {
+    nosControl();
+    autoHeat();
+    }
+  purge();
+  autoPurge();
+  putDataToHMI();
 }
