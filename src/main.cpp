@@ -181,15 +181,15 @@ void testHMI(){
 }
 
 void setup() {
-Serial.begin(115200);
-Serial.println("Starting test mode...");
+  Serial.begin(115200);
+  Serial.println("Starting test mode...");
 
-Serial2.begin(9600);
+  Serial2.begin(9600);
 
 
-if(!testMode){
-  while (!obd.init());
-}
+  if(!testMode){
+   while (!obd.init());
+  }
 
   delay(2000);
   Serial2.print("page 1");
