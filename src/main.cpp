@@ -1,5 +1,5 @@
 
-// By Trevor Gruszynski && Evan Gruszynski
+// By Hailey Gruszynski && Evan Gruszynski
 #include <Arduino.h>
 #include <OBD2UART.h>
 #include <Nextion.h>
